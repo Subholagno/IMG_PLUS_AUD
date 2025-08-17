@@ -30,10 +30,23 @@ if upload_file_aud:
     if upload_file_img:
         top_img = Image.open(upload_file_img, 'r')
         top_img_w, top_img_h = top_img.size
-        bottom_img = Image.open('Background.jpg', 'r')
+        bottom_img = Image.open('black_background.jpg', 'r')
         bottom_img_w, bottom_img_h = bottom_img.size
-        offset = ((bottom_img_w - top_img_w) // 2, (bottom_img_h - top_img_h) // 2)
-        bottom_img.paste(top_img, offset)
+        if top_img_w > bottom_img_w or top_img_h >bottom_img_h:
+            width_ratio = bottom_img_w / top_img_w
+            height_ratio = bottom_img_h / top_img_h
+            scale_factor = min(width_ratio, height_ratio)
+        else:
+            scale_factor = 1
+
+
+        new_width = int(top_img_w * scale_factor)
+        new_height = int(top_img_h * scale_factor)
+
+        resized_img = top_img.resize((new_width, new_height), Image.LANCZOS)
+
+        offset = ((bottom_img_w - new_width) // 2, (bottom_img_h - new_height) // 2)
+        bottom_img.paste(resized_img, offset)
         output_name = 'img_fnl.jpg'
         bottom_img.save(output_name)
         my_image_clip = ImageClip(output_name, duration = af.duration)
